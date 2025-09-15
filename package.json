@@ -1,0 +1,23 @@
+{
+  "name": "mcp-testing",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "repository": "https://github.com/biggerperson/tester.git",
+  "author": "biggerperson <rats900@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx react-native start",
+    "ios": "npx react-native run-ios",
+    "android": "npx react-native run-android",
+    "pod-install": "cd ios && pod install",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.71.8",
+    "@react-native-mapbox-gl/maps": "^10.5.0",
+    "@react-native-async-storage/async-storage": "^1.18.1"
+  },
+  "devDependencies": {}
+}
