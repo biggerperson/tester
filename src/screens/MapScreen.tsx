@@ -1,10 +1,11 @@
 // src/screens/MapScreen.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import { View, StyleSheet } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
 import SearchBar from '../components/SearchBar';
 import { loadPins, savePins } from '../services/storage';
 import type { Pin } from '../types';
+import { Feature, Point } from 'geojson';
 
 const DEFAULT_COORDINATE: [number, number] = [-122.4194, 37.7749]; // SF as default [lng, lat]
 
@@ -35,9 +36,9 @@ export default function MapScreen() {
     savePins(pins).catch((e) => console.warn('Failed to save pins', e));
   }, [pins]);
 
-  const onLongPress = (evt: MapboxGL.MapEvent) => {
+  const onLongPress = (event: Feature<Point>) => {
     try {
-      const coords = evt.geometry.coordinates as [number, number];
+      const coords = event.geometry.coordinates as [number, number];
       const newPin: Pin = {
         id: `${Date.now()}`,
         title: 'Pinned location',
@@ -78,7 +79,11 @@ export default function MapScreen() {
       <MapboxGL.MapView
         style={styles.map}
         styleURL={MapboxGL.StyleURL.Street}
-        onLongPress={onLongPress}
+onLongPress={(e: any) => {
+  const ev = e?.nativeEvent ?? e;
+  const feature: Feature<Point> = ev.features?.[0] ?? ev;
+  onLongPress(feature);
+}}
         logoEnabled={false}
         compassEnabled={true}
       >
@@ -86,15 +91,15 @@ export default function MapScreen() {
 
         {/* Render pins */}
         {pins.map((pin) => (
-          <MapboxGL.PointAnnotation
+          <MapboxGL.MarkerView
             key={pin.id}
             id={pin.id}
             coordinate={[pin.longitude, pin.latitude]}
-            title={pin.title}
           >
-            <View style={styles.pin} />
-            <MapboxGL.Callout title={pin.title} />
-          </MapboxGL.PointAnnotation>
+            <View style={styles.pinContainer}>
+              <View style={styles.pin} />
+            </View>
+          </MapboxGL.MarkerView>
         ))}
       </MapboxGL.MapView>
     </View>
@@ -104,6 +109,12 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
+  pinContainer: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   pin: {
     width: 24,
     height: 24,
